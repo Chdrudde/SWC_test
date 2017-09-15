@@ -1,13 +1,17 @@
 # R script SWC part Ruben R on plotting and part FM on dplyr data wrangling
 
-##### Loading libraries ####
+##### Loading packages ####
 library(ggplot2)
 library(dplyr)
 library(gapminder)
+library(viridis)
 
 #### Reading the data ####
 
-df<-read.csv("Metadata.csv",nrows=77)
+df<-read.csv("Metadata.csv", nrows= 77)
+
+
+
 View(df)
 
 # Which variables are in the dataframe?
@@ -43,7 +47,7 @@ p4<-p3 + facet_grid(Reactor.phase~Reactor.cycle)
 
 # Improve the plot by removing redundant information
 
-p4<-p4 + (aes(fill=Reactor.phase,color=Reactor.phase))
+p4<-p4 + (aes(fill=Reactor.phase,color=Reactor.phase)) + 
 
 #Meanwhile, git again: save the file, open git in tab, click stage
 
@@ -91,5 +95,34 @@ diversity.startup <- df %>%
   #select(Diversity...D0,Diversity...D1,Diversity...D2)
   select(contains("Diversity"))
 
-#### group_by and summarize ####
+#### group_by and summarise ####
 
+meanph <- df %>%  group_by(Reactor.phase) %>% 
+  summarise(mean.ph=mean(ph,na.rm=TRUE), sd.ph=sd(ph,na.rm=TRUE))
+
+# Challenge
+
+# generate a summary for reactor cycle 2 and 
+# add stdev of the D2 
+# and the mean log10 transformed cell density
+# Filter rows, select columns
+
+cycle2.summary <- df %>% filter(Reactor.cycle== "2") %>% 
+  mutate(condratio= Conductivity/temp) %>% 
+  summarise(mean.ph=mean(ph,na.rm=TRUE), sd.ph=sd(ph,na.rm=TRUE), 
+            sd.d2=sd(Diversity...D2, na.rm=TRUE), 
+            avlog10CellDensity=mean(log10(Cell.density..cells.mL.)), mean.condrat= mean(condratio, na.rm= TRUE))
+ 
+#### Join data sets #####
+# The data sets don't need to be complete; check the different types of join to deal with that
+
+physicochem <- df %>% 
+  select(sample_title, temp, ph, Conductivity)
+
+diversity <- df %>% 
+  select(sample_title,contains(("Diversity")))
+
+# Merging data sets;  should have one common characteristic (KEY, eg; sample name)
+# Check join: left_join, right_join
+
+physicodiversity <- dplyr::full_join(physicochem, diversity, by= "sample_title")
