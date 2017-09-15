@@ -39,9 +39,21 @@ p4<-p3 + facet_grid(Reactor.phase~Reactor.cycle)
 
 p4<-p4 + (aes(fill=Reactor.phase,color=Reactor.phase))
 
+#Meanwhile, git again: save the file, open git in tab, click stage
+
 # Challenge time
-## Right side: Conductivity
+## Right side: Conductivity (us)
 ## Middle: Diversity
 ## Left: Cell density
+
+# Added a dashed line to connect points from different reactor phases
+p5<-ggplot(data=df, aes(x=Timepoint, y=Conductivity))+
+  facet_grid(~Reactor.cycle)+
+  geom_line(lty=2,colour="black")+
+  geom_point(size=3, alpha=0.5, aes(fill=Reactor.phase,color=Reactor.phase))+
+  geom_line(aes(color=Reactor.phase))+
+  theme_bw()+
+  ggtitle("Another awesome plot")
+p5
 
 
